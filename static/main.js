@@ -354,6 +354,12 @@ async function newGame() {
   const difficulty = document.getElementById('difficulty').value;
   const res = await fetch('/new?difficulty=' + encodeURIComponent(difficulty));
   const data = await res.json();
+  if (data.error) {
+    const msg = document.getElementById('message');
+    msg.style.color = 'var(--message-error)';
+    msg.innerText = data.error;
+    return;
+  }
   hintsUsed = 0;
   document.getElementById('hints-used').innerText = 'Hints used: ' + hintsUsed;
   renderPuzzle(data.puzzle, data.solution || []);
@@ -416,6 +422,7 @@ async function checkSolution() {
     msg.innerText = data.error;
     return;
   }
+  // The server includes blanks and wrong values, but never fixed cells.
   const incorrect = new Set(data.incorrect.map(x => x[0] * SIZE + x[1]));
   for (let idx = 0; idx < inputs.length; idx++) {
     const inp = inputs[idx];
